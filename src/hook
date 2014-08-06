@@ -37,6 +37,6 @@ fi
 
 touch ${ERROR_LOG}
 touch ${CHALLENGE_FILE}
-cp ${CHALLENGE_FILE} "${DESTDIR}/boot/yubikey-challenge"
+cp ${CHALLENGE_FILE} "${DESTDIR}/etc/yubikey-challenge"
 cp /usr/share/ykfde/ykfde-keyscript "${DESTDIR}/sbin/ykfde-keyscript"
 exit 0
