@@ -1,10 +1,5 @@
 #!/bin/sh
-#
-# Will be named:
-# /usr/share/initramfs-tools/hooks/ykfde
-#
 
-# set the defaults
 CHALLENGE_FILE="/boot/yubikey-challenge"
 ERROR_LOG="/var/log/ykfde"
 
