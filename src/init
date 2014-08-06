@@ -10,10 +10,6 @@
 # Description: update yubikey-challenge for LUKS
 ### END INIT INFO
 
-N=/etc/init.d/ykfde
-
-set -e
-
 case "$1" in
     start|restart)
         /usr/sbin/ykfdectl update
@@ -21,7 +17,7 @@ case "$1" in
     stop|reload|force-reload|status)
     ;;
     *)
-        echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
+        echo "Usage: $0 {start|stop|restart|force-reload|status}" >&2
         exit 1
     ;;
 esac

@@ -4,8 +4,6 @@
 # /usr/share/initramfs-tools/hooks/ykfde
 #
 
-set -e
-
 # set the defaults
 CHALLENGE_FILE="/boot/yubikey-challenge"
 ERROR_LOG="/var/log/ykfde"
@@ -39,6 +37,6 @@ fi
 
 touch ${ERROR_LOG}
 touch ${CHALLENGE_FILE}
-cp ${CHALLENGE_FILE} "${DESTDIR}/etc/yubikey-challenge"
+cp ${CHALLENGE_FILE} "${DESTDIR}/boot/yubikey-challenge"
 cp /usr/share/ykfde/ykfde-keyscript "${DESTDIR}/sbin/ykfde-keyscript"
 exit 0

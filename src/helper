@@ -4,8 +4,6 @@
 # /usr/share/ykfde/ykfde-keyscript
 #
 
-set -e
-
 YKOPTS="-2"
 
 # read defaults..

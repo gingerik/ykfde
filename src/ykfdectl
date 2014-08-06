@@ -7,10 +7,11 @@ LUKS_SLOT="7"
 CHALLENGE_FILE="/boot/yubikey-challenge"
 ERROR_LOG="/var/log/ykfde"
 
+# TODO workaround for ykinfo (2)
 
 # read defaults..
 if [ -e /etc/default/ykfde ]; then
-    . /etc/default/ykfde
+    source /etc/default/ykfde
 
     if [ "${LUKS_SLOT}" = "multi" ]; then
         type ykinfo > /dev/null;
@@ -20,7 +21,7 @@ if [ -e /etc/default/ykfde ]; then
             exit 1
         fi
         echo -n "LUKS_SLOT is set to 'multi': "
-        . /etc/ykfde.conf
+        # TODO
         serial="$(ykinfo -s | awk '{print $NF}')"
         for i in $(seq 0 7); do
             if [ "${LUKS_SLOT[${i}]}" == "${serial}" ]; then
