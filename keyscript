@@ -1,28 +1,37 @@
 #! /bin/sh
 
-set -e
+udevadm settle
 
-udevadm settle || true
-R="$(ykchalresp "$(cat /etc/yubikey-challenge)" 2>/dev/null || true )"
-if [ -z "$R" ]; then
-    echo "Please insert yubikey or press enter to use password unlocking" >&2
-    read a
-    R="$(ykchalresp "$(cat /etc/yubikey-challenge)" 2>/dev/null || true)"
+chalresp() {
+	echo $(ykchalresp "$(cat /etc/yubikey-challenge)" \
+			2>/dev/null)
+	return ${?}
+}
+
+echo "Unlocking the disk $cryptsource ($crypttarget)" >&2
+
+key=$(chalresp)
+if [ $? -ne 0 ]; then
+	echo "Insert your Yubikey or press enter to use password unlocking" >&2
+	read a
+	key=$(chalresp)
 fi
 
-if [ -z "$R" ]; then
-    cryptkey="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
-    if [ -x /bin/plymouth ] && plymouth --ping; then
-	cryptkeyscript="plymouth ask-for-password --prompt"
-	cryptkey=$(echo -e "$cryptkey")
-    else
-	cryptkeyscript="/lib/cryptsetup/askpass"
-    fi
-    exec $cryptkeyscript "$cryptkey"
+if [ $? -eq 0 ]; then
+	echo "Using Yubikey for unlocking" >&2
+	echo -n "$key"
+else
+	msg="Enter passphrase: "
+	if [ -x /bin/plymouth ] && plymouth --ping; then
+		script="plymouth ask-for-password --prompt"
+	else
+		script="/lib/cryptsetup/askpass"
+	fi
+	exec $script "$msg"
 fi
 
 mkdir -p /dev/.run/ykfde
 chmod 700 /dev/.run/ykfde
 echo "$cryptsource" > /dev/.run/ykfde/cryptsource
-echo -n "$R"
+
 exit 0

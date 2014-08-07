@@ -1,11 +1,8 @@
-#!/bin/sh
-
-set -e
+#! /bin/sh
 
 PREREQ="cryptroot"
 
-prereqs()
-{
+prereqs() {
 	echo "$PREREQ"
 }
 
@@ -18,7 +15,10 @@ esac
 
 . /usr/share/initramfs-tools/hook-functions
 
+touch /boot/yubikey-challenge
+
 copy_exec /usr/bin/ykchalresp
 cp /boot/yubikey-challenge "${DESTDIR}/etc/yubikey-challenge"
 cp /usr/share/ykfde/ykfde-keyscript "${DESTDIR}/sbin/ykfde-keyscript"
+
 exit 0

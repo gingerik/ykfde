@@ -1,11 +1,8 @@
 #! /bin/sh
 
-set -e
-
 PREREQ=""
 
-prereqs()
-{
+prereqs() {
 	echo "$PREREQ"
 }
 
@@ -17,7 +14,8 @@ prereqs)
 	;;
 esac
 
-if [ -e /etc/yubikey-challenge ]; then
-    sed -i 's|$|,keyscript=/sbin/ykfde-keyscript|' /conf/conf.d/cryptroot
+if [ -s /etc/yubikey-challenge ]; then
+	sed -i 's|$|,keyscript=/sbin/ykfde-keyscript|' /conf/conf.d/cryptroot
 fi
+
 exit 0
