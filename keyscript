@@ -14,14 +14,18 @@ chalresp() {
 
 echo "Unlocking the disk $cryptsource ($crypttarget)" >&2
 
-key=$(chalresp)
-if [ $? -ne 0 ]; then
-	echo "Insert your Yubikey or press enter to use password unlocking" >&2
-	read a
+status=1
+if [ -s /etc/yubikey-challenge ]; then
 	key=$(chalresp)
+	if [ $? -ne 0 ]; then
+		echo "Insert your Yubikey or press enter to use password unlocking" >&2
+		read a
+		key=$(chalresp)
+	fi
+	status=${?}
 fi
 
-if [ $? -eq 0 ]; then
+if [ "$status" -eq 0 ]; then
 	echo "Using Yubikey for unlocking" >&2
 	echo -n "$key"
 else
