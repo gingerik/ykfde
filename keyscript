@@ -2,8 +2,12 @@
 
 udevadm settle
 
+if [ -e /etc/default/ykfde ]; then
+	. /etc/default/ykfde
+fi
+
 chalresp() {
-	echo $(ykchalresp "$(cat /etc/yubikey-challenge)" \
+	echo $(ykchalresp -${YK_SLOT-2} "$(cat /etc/yubikey-challenge)" \
 			2>/dev/null)
 	return ${?}
 }

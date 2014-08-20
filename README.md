@@ -17,5 +17,4 @@ press enter and then enter a normal passphrase during bootup.
 
 ## Limitations/bugs
 
-* Uses the default ykchalresp settings, meaning no support for slot 2;
 * Does not update the challenge after each boot.
