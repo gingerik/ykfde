@@ -6,9 +6,7 @@
 Install the package
 
 ```bash
-uuidgen > /boot/yubikey-challenge
-key=$(ykchalresp $(cat /boot/yubikey-challenge)) 
-cryptsetup luksAddKey /dev/sda2 "$key"
+service ykfde restart
 ```
 
 On bootup, you will be asked to insert a Yubikey (2.2 or newer) which
@@ -17,4 +15,4 @@ press enter and then enter a normal passphrase during bootup.
 
 ## Limitations/bugs
 
-* Does not update the challenge after each boot.
+* You **must** always use the same Yubikey.

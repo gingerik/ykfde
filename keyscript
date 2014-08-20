@@ -7,7 +7,7 @@ if [ -e /etc/default/ykfde ]; then
 fi
 
 chalresp() {
-	echo $(ykchalresp -${YK_SLOT-2} "$(cat /etc/yubikey-challenge)" \
+	echo $(ykchalresp -${YK_SLOT-2} -H -x "$(cat /etc/yubikey-challenge)" \
 			2>/dev/null)
 	return ${?}
 }

@@ -7,6 +7,7 @@ case "$1" in
 		if [ -x /usr/sbin/update-initramfs ]; then
 			update-initramfs -u
 		fi
+		update-rc.d ykfde defaults
 		;;
 	abort-upgrade|abort-remove|abort-deconfigure)
 

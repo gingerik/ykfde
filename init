@@ -1,0 +1,129 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          ykfde
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Update ykfde challenge
+# Description:       This file updates /boot/yubikey-challenge
+#                    and a corresponding LUKS key. The LUKS key
+#                    is the response from a connected Yubikey.
+#                    If no Yubikey is present at runtime, this
+#                    script does nothing.
+# X-Interactive:     true
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+if [ -e /etc/default/ykfde ]; then
+	. /etc/default/ykfde
+fi
+
+challengeFile="/boot/yubikey-challenge"
+
+chalresp() {
+	key=$(ykchalresp -${YK_SLOT-2} -H -x "$1" 2>/dev/null)
+	if [ $? -ne 0 ]; then
+		log_failure_msg "Invalid response to challenge."
+		return 1
+	fi
+	if [ -z "$key" ]; then
+		log_failure_msg "No response to challenge."
+		return 1
+	fi
+	echo "$key"
+	return 0
+}
+
+case "$1" in
+	start|restart|reload|force-reload)
+
+		ykpersonalize -V > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			log_warning_msg "No Yubikey present."
+			exit 1
+		fi
+
+		echo -n "Generating new key..."
+		challenge=$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 128)
+		key=$(chalresp "$challenge")
+		if [ $? -ne 0 ]; then
+			echo "failed."
+			exit 1
+		else
+			echo "done."
+		fi
+
+		if [ -s "$challengeFile" ]; then
+			echo -n "Retrieving old key..."
+			oldKey=$(chalresp $(cat ${challengeFile}))
+			if [ $? -ne 0 ]; then
+				echo "failed."
+				exit 1
+			else
+				echo "done."
+			fi
+			echo -n "Updating LUKS key..."
+			output=$(printf '%s\n' $oldKey $key $key | \
+					cryptsetup luksChangeKey /dev/sda2 2>&1)
+		else
+			echo "Need to initialise LUKS to use your Yubikey."
+			echo -n "Please enter your normal passphrase: "
+			read oldKey
+			echo ""
+			if [ -z "$oldKey" ]; then
+				echo "Aborted."
+				exit 0
+			fi
+			echo -n "Adding LUKS key..."
+			output=$(printf '%s\n' $oldKey $key $key | \
+					cryptsetup luksAddKey /dev/sda2 2>&1)
+		fi
+
+		if [ $? -ne 0 ]; then
+			echo "failed."
+			if [ -z "$output" ]; then
+				output="Failed adding LUKS key to cryptsetup."
+			fi
+			log_failure_msg "$output"
+			exit 1
+		else
+			echo "done."
+		fi
+
+		echo "$challenge" > ${challengeFile}
+		update-initramfs -u -k "$(uname -r)"
+		log_success_msg "Updated LUKS key using Yubikey."
+	;;
+
+	status)
+		if [ -s "$challengeFile" ]; then
+			echo "Found challenge for Yubikey."
+			retval=0
+		else
+			echo "No challenge present."
+			retval=3
+		fi
+
+		ykpersonalize -V > /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			echo "Yubikey present. "
+		else
+			echo "No Yubikey present."
+		fi
+
+		exit ${retval}
+	;;
+
+	stop)
+	;;
+
+	*)
+		echo "Usage: $0 {start|restart|force-reload|status}" >&2
+		exit 1
+	;;
+esac
+
+exit 0
