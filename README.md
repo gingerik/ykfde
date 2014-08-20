@@ -15,4 +15,5 @@ press enter and then enter a normal passphrase during bootup.
 
 ## Limitations/bugs
 
+* Only `dev/sda5` is supported as the LUKS device;
 * You **must** always use the same Yubikey.

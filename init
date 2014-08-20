@@ -22,6 +22,7 @@ if [ -e /etc/default/ykfde ]; then
 fi
 
 challengeFile="/boot/yubikey-challenge"
+luksDevice="/dev/sda5"
 
 chalresp() {
 	key=$(ykchalresp -${YK_SLOT-2} -H -x "$1" 2>/dev/null)
@@ -67,7 +68,7 @@ case "$1" in
 			fi
 			echo -n "Updating LUKS key..."
 			output=$(printf '%s\n' $oldKey $key $key | \
-					cryptsetup luksChangeKey /dev/sda2 2>&1)
+					cryptsetup luksChangeKey ${luksDevice} 2>&1)
 		else
 			echo "Need to initialise LUKS to use your Yubikey."
 			echo -n "Please enter your normal passphrase: "
@@ -79,7 +80,7 @@ case "$1" in
 			fi
 			echo -n "Adding LUKS key..."
 			output=$(printf '%s\n' $oldKey $key $key | \
-					cryptsetup luksAddKey /dev/sda2 2>&1)
+					cryptsetup luksAddKey ${luksDevice} 2>&1)
 		fi
 
 		if [ $? -ne 0 ]; then
