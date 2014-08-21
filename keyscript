@@ -7,15 +7,17 @@ if [ -e /etc/default/ykfde ]; then
 fi
 
 chalresp() {
-	echo $(ykchalresp -${YK_SLOT-2} -H -x "$(cat /etc/yubikey-challenge)" \
-			2>/dev/null)
+	echo $(ykchalresp -${YK_SLOT-2} -H -x "$(cat /etc/yubikey-challenge)"
+			) # TODO restore
 	return ${?}
 }
 
 echo "Unlocking the disk $cryptsource ($crypttarget)" >&2
 
+cat /etc/yubikey-challenge >&2 # TODO rm line
 status=1
 if [ -s /etc/yubikey-challenge ]; then
+	echo "Read from key" >&2 # TODO rm line
 	key=$(chalresp)
 	if [ $? -ne 0 ]; then
 		echo "Insert your Yubikey or press enter to use password unlocking" >&2
@@ -27,6 +29,8 @@ fi
 
 if [ "$status" -eq 0 ]; then
 	echo "Using Yubikey for unlocking" >&2
+	echo "Status: $status" >&2 # TODO rm line
+	echo "Key: $key" >&2 # TODO rm line
 	echo -n "$key"
 else
 	msg="Enter passphrase: "
